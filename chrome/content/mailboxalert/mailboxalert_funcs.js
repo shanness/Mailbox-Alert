@@ -545,13 +545,13 @@ MailboxAlert.playSound = function (soundURL) {
               var ioService = Components.classes["@mozilla.org/network/io-service;1"]
                        .getService(Components.interfaces.nsIIOService);
               var url = ioService.newURI(soundURL, null, null);
-              dump("gSound.play("+soundURL+")\n");
+              dump("gSound.play(\""+soundURL+"\")\n");
               gSound.play(url);
               dump("sound played\n");
           } catch(e) {
               // some error, just 'beep' (which is system-dependent
               // these days)
-              dump("[XX] exception playing sound: " + e);
+              dump("[XX] exception playing sound: " + e + "\n");
               gSound.beep();
           }
     } else {
