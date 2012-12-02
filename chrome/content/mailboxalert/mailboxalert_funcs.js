@@ -1,3 +1,12 @@
+//
+// Copyright 2010, Jelte Jansen
+// BSD licensed, see LICENSE for details
+//
+
+//
+// This file contains most of the supporting functionality of Mailbox Alert
+//
+
 MailboxAlert.showMethods = function (obj) {
     dump("[Object] Type: " + obj + "\n");
     for (var id in obj) {
@@ -136,6 +145,29 @@ MailboxAlert.createAlertData = function (mailbox, last_unread) {
     // internal state variables
     this.orig_folder_name = this.folder_name;
     this.is_parent = false;
+
+    this.body = false;
+
+    this.getBodyCallback = function(hdr, mime_msg) {
+        this.body = "foo";
+        this.callback_needed = false;
+    }
+
+    // Returns the (main) message body through
+    // MsgHdrToMimeMessage
+    this.getBody = function() {
+        if (!this.body) {
+            xxxxxxxxxxxxxxxxx
+            this.needs_callback = true;
+            var options = {}
+            options.saneBodySize = true;
+            options.partsOnDemand = true;
+            MsgHdrToMimeMessage(this.last_unread, this, this.getBodyCallback,
+                                true, options)
+        } else {
+            return this.body;
+        }
+    }
 
 
     // Returns the preview text
@@ -408,7 +440,8 @@ MailboxAlert.showMessage = function (alert_data, show_icon, icon_file, subject_p
     subject_pref = MailboxAlert.replace(subject_pref, "%msg_preview", preview);
     subject_pref = MailboxAlert.replace(subject_pref, "%msg_uri", alert_data.msg_uri);
     if (subject_pref.indexOf("%body" > 0)) {
-        subject_pref = MailboxAlert.replace(subject_pref, "%body", alert_data.getPreview());
+        //subject_pref = MailboxAlert.replace(subject_pref, "%body", alert_data.getPreview());
+        subject_pref = MailboxAlert.replace(subject_pref, "%body", alert_data.getBody());
     }
 
     var message_text = message;
@@ -431,7 +464,8 @@ MailboxAlert.showMessage = function (alert_data, show_icon, icon_file, subject_p
     message_text = MailboxAlert.replace(message_text, "%msg_preview", preview);
     message_text = MailboxAlert.replace(message_text, "%msg_uri", alert_data.msg_uri);
     if (subject_pref.indexOf("%body" > 0)) {
-        message_text = MailboxAlert.replace(message_text, "%body", alert_data.getPreview());
+        //message_text = MailboxAlert.replace(message_text, "%body", alert_data.getPreview());
+        message_text = MailboxAlert.replace(message_text, "%body", alert_data.getBody());
     }
 
     dump("[XX] Message text: " + message_text + "\n");
@@ -478,7 +512,7 @@ MailboxAlert.replaceCommandPart = function (alert_data, command, escape_html, al
     command = MailboxAlert.replaceEscape(already_quoted, command, "%originalfolder", MailboxAlert.escapeHTML(escape_html, alert_data.orig_folder_name));
     command = MailboxAlert.replaceEscape(already_quoted, command, "%folder_name_with_server", MailboxAlert.escapeHTML(escape_html, alert_data.folder_name_with_server));
     command = MailboxAlert.replaceEscape(already_quoted, command, "%countall", ""+alert_data.all_message_count);
-    command = MailboxAlert.replaceEscape(already_quoted, command, "%count", ""+alert_data.orig_message_count);
+    command = MailboxAlert.replaceEscape(already_quoted, command, "%count", ""+alert_data.message_count);
     //alert("3 is now: '" + command + "'");
     command = MailboxAlert.replaceEscape(already_quoted, command, "%subject", MailboxAlert.escapeHTML(escape_html, alert_data.subject));
     //alert("4 is now: '" + command + "'");
