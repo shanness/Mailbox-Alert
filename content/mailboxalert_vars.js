@@ -646,7 +646,7 @@ MailboxAlert.filter_action =
         }
     },
     allowDuplicates: true,
-    needsBody: true
+    needsBody: false
 };
 
 // Returns an array with all the alert prefs in the configuration
