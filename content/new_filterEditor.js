@@ -28,15 +28,15 @@
     parentNode.updateRemoveButton();
   };
 
-  const updateParentNode2 = (parentNode, i) => {
-    MailboxAlertUtil.logMessage(5, "updateParentNode " + i + ": " + parentNode.nodeName);
+  const printNodeAttrsRecurse = (parentNode, i) => {
+    MailboxAlertUtil.logMessage(5, "NodeAttrsRecurse node: " + i + ": " + parentNode.nodeName);
     let attrs = parentNode.attributes;
     for (let i=0; i<attrs.length; i++) {
       let item = attrs.item(i);
-      MailboxAlertUtil.logMessage(5, "updateParentNode attr: " + item.nodeName);
+      MailboxAlertUtil.logMessage(5, "    attr: " + item.nodeName);
     }
     if (parentNode.parentNode) {
-      updateParentNode2(parentNode.parentNode, i+1)
+      printNodeAttrsRecurse(parentNode.parentNode, i+1)
     }
   };
 
@@ -48,11 +48,12 @@ class MozRuleactiontargetFilteralert extends MailboxAlertRuleactiontargetBase {
     }
     this.textContent = "";
     this.appendChild(MozXULElement.parseXULToFragment(`
-    <hbox>
-      <menulist flex="1" class="ruleactionitem" inherits="disabled" onchange="this.parentNode.setAttribute('value', this.value);this.parentNode.value=this.value">
+      <menulist flex="1" class="ruleactionitem" inherits="disabled"
+                onchange="this.parentNode.updateValue(this);"
+                oncommand="this.parentNode.updateValue(this);"
+      >
         <menupopup></menupopup>
       </menulist>
-    </hbox>
     `));
 
     //var alert_menu = document.getAnonymousNodes(this)[0].menupopup;
@@ -68,13 +69,28 @@ class MozRuleactiontargetFilteralert extends MailboxAlertRuleactiontargetBase {
       alert_menupopup.appendChild(alert_menuitem);
     }
     updateParentNode(this.closest(".ruleaction"));
+
     // scan all menupopup items to find the uri for the selection
+    printNodeAttrsRecurse(this, 0);
+/*
+    MailboxAlertUtil.logMessage(5, "original action?Value is " + this.value);
     let valueElements = alert_menupopup.getElementsByAttribute('value', value);
     if (valueElements && valueElements.length)
       alert_menu.selectedItem = valueElements[0];
     else
       alert_menu.selectedIndex = 0;
-    this.value = menulist.selectedItem.getAttribute("value");
+    this.value = alert_menu.selectedItem.getAttribute("value");
+*/
+  }
+  
+  updateValue(element) {
+    MailboxAlertUtil.logMessage(5, "value changed");
+    MailboxAlertUtil.logMessage(5, "value changed to " + element.value);
+    MailboxAlertUtil.logMessage(5, "parent value was " + this.value);
+    
+    element.parentNode.setAttribute('value', element.value);
+    element.parentNode.value=element.value;
+    MailboxAlertUtil.logMessage(5, "parent value now " + this.value);
   }
 }
 

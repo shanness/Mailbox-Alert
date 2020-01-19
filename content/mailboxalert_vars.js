@@ -621,6 +621,7 @@ MailboxAlert.filter_action =
     name: "Mailbox Alert",
     apply: function(aMsgHdrs, aActionValue, aListener, aType, aMsgWindow)
     {
+        MailboxAlertUtil.logMessage(1, "Filter triggered with actionValue " + aActionValue);
         var alert = MailboxAlert.getAlertPreferences(aActionValue);
         if (alert) {
             for (var i = 0; i < aMsgHdrs.length; ++i) {
